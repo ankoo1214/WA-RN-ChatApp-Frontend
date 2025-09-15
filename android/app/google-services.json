@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "849122719257",
+    "project_id": "chat-app-846da",
+    "storage_bucket": "chat-app-846da.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:849122719257:android:ca5142251559cf13ee1c88",
+        "android_client_info": {
+          "package_name": "com.wachatapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTG-t0Au260P2SCfCHsjcOzJP4fD9zZe8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
