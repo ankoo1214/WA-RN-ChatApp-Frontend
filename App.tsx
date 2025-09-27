@@ -20,12 +20,17 @@ import {
 } from 'react-native-safe-area-context';
 
 import StackNav from './src/navigation/StackNav';
+import { ThemeProvider } from './src/context/ThemeProvider';
+import GlobalState from './src/context/index';
 function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <StackNav />
-      {/* <Text>Hello My name is react-native </Text> */}
-    </SafeAreaView>
+    <GlobalState>
+      <ThemeProvider>
+        <SafeAreaView style={styles.container}>
+          <StackNav />
+        </SafeAreaView>
+      </ThemeProvider>
+    </GlobalState>
   );
 }
 

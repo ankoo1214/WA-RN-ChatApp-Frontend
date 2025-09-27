@@ -1,29 +1,28 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Update from './Update';
 import Calls from './Calls';
 import ChatList from './ChatList';
 import Settings from './Settings';
-
-const WHATSAPP_GREEN = '#25D366';
-const WHATSAPP_DARK = '#075E54';
+import { useTheme } from '../context/ThemeProvider';
 
 const Tab = createBottomTabNavigator();
 
 export default function Home() {
+  const { theme } = useTheme();
+
   return (
     <Tab.Navigator
       initialRouteName="Chats"
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: WHATSAPP_GREEN,
+        tabBarActiveTintColor: theme.colors.accent,
         tabBarInactiveTintColor: '#777',
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: theme.colors.card,
           borderTopWidth: 1,
-          borderTopColor: '#eee',
+          borderTopColor: theme.colors.separator,
           height: 60,
         },
         tabBarLabelStyle: { fontWeight: 'bold', fontSize: 14 },

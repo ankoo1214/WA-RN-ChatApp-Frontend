@@ -15,7 +15,7 @@ export default function StackNav() {
         screenOptions={{
           headerShown: false, // optional, if you don’t want headers
         }}
-        initialRouteName="SplashScreen"
+        initialRouteName="Home"
       >
         <Stack.Screen name="SplashScreen" component={Splash} />
         <Stack.Screen name="LoginSignUp" component={LoginSignup} />
@@ -23,7 +23,7 @@ export default function StackNav() {
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen
           screenOptions={{
-            headerShown: true, // optional, if you don’t want headers
+            headerShown: true,
           }}
           name="MessageScreen"
           component={Message}

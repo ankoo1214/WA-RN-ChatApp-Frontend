@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -9,13 +9,12 @@ import {
   TextInput,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AddContactModal from '../component/AddContactModal';
+import { GlobalContext } from '../context';
+import { useTheme } from '../context/ThemeProvider';
 
 const { width } = Dimensions.get('window');
-const WHATSAPP_GREEN = '#25D366';
-const WHATSAPP_DARK = '#075E54';
-const WHATSAPP_LIGHT_GREY = '#ECECEC';
 
-// Dummy chat list data
 const CHATS = [
   {
     id: '1',
@@ -41,22 +40,32 @@ const CHATS = [
 ];
 
 export default function ChatList({ navigation }) {
+  const { addContactModalVisible, setAddContactModalVisible } =
+    useContext(GlobalContext);
+  const { theme } = useTheme();
   const [search, setSearch] = useState('');
 
-  // Filter logic
   const filteredChats = CHATS.filter(
     c =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.lastMessage.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const handleAdd = () => {
+    console.log('Add contact logic here');
+  };
+
   const renderItem = ({ item }) => (
     <Pressable
       style={({ pressed }) => [
         styles.itemContainer,
-        { backgroundColor: pressed ? '#f3f7f7' : '#fff' },
+        {
+          backgroundColor: pressed
+            ? theme.colors.card
+            : theme.colors.background,
+        },
       ]}
-      android_ripple={{ color: WHATSAPP_GREEN, borderless: false }}
+      android_ripple={{ color: theme.colors.accent, borderless: false }}
       onPress={() =>
         navigation.navigate('MessageScreen', {
           chatId: item.id,
@@ -65,15 +74,24 @@ export default function ChatList({ navigation }) {
         })
       }
     >
-      <View style={styles.avatarCircle}>
+      <View
+        style={[styles.avatarCircle, { backgroundColor: theme.colors.accent }]}
+      >
         <Text style={styles.avatarText}>{item.avatar}</Text>
       </View>
       <View style={styles.content}>
         <View style={styles.topRow}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.time}>{item.time}</Text>
+          <Text style={[styles.name, { color: theme.colors.title }]}>
+            {item.name}
+          </Text>
+          <Text style={[styles.time, { color: theme.colors.placeholder }]}>
+            {item.time}
+          </Text>
         </View>
-        <Text style={styles.lastMessage} numberOfLines={1}>
+        <Text
+          style={[styles.lastMessage, { color: theme.colors.text }]}
+          numberOfLines={1}
+        >
           {item.lastMessage}
         </Text>
       </View>
@@ -81,21 +99,22 @@ export default function ChatList({ navigation }) {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Chats</Text>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
+      <Text style={[styles.heading, { color: theme.colors.title }]}>Chats</Text>
 
-      {/* Search Bar */}
-      <View style={styles.searchBar}>
+      <View style={[styles.searchBar, { backgroundColor: theme.colors.card }]}>
         <Icon
           name="search"
           size={width * 0.06}
-          color="#aaa"
+          color={theme.colors.placeholder}
           style={{ marginRight: 8 }}
         />
         <TextInput
           placeholder="Search chats"
-          placeholderTextColor="#aaa"
-          style={styles.searchInput}
+          placeholderTextColor={theme.colors.placeholder}
+          style={[styles.searchInput, { color: theme.colors.text }]}
           value={search}
           onChangeText={setSearch}
         />
@@ -105,16 +124,43 @@ export default function ChatList({ navigation }) {
         data={filteredChats}
         keyExtractor={item => item.id}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={() => (
+          <View
+            style={[
+              styles.separator,
+              { backgroundColor: theme.colors.separator },
+            ]}
+          />
+        )}
         contentContainerStyle={{ paddingBottom: 12 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={{ color: '#888', fontSize: width * 0.045 }}>
+            <Text
+              style={{
+                color: theme.colors.placeholder,
+                fontSize: width * 0.045,
+              }}
+            >
               No chats found.
             </Text>
           </View>
         }
+      />
+
+      {/* Floating Add Contact (+) Button */}
+      <Pressable
+        style={({ pressed }) => [styles.fab, { opacity: pressed ? 0.7 : 1 }]}
+        onPress={() => setAddContactModalVisible(true)}
+      >
+        <Icon name="add" size={width * 0.09} color="#fff" />
+      </Pressable>
+
+      <AddContactModal
+        visible={addContactModalVisible}
+        onClose={() => setAddContactModalVisible(false)}
+        onAdd={handleAdd}
+        theme={theme}
       />
     </View>
   );
@@ -123,12 +169,10 @@ export default function ChatList({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: WHATSAPP_LIGHT_GREY,
     paddingHorizontal: width * 0.02,
     paddingTop: width * 0.04,
   },
   heading: {
-    color: WHATSAPP_DARK,
     fontWeight: '700',
     fontSize: width * 0.068,
     marginBottom: width * 0.03,
@@ -138,13 +182,11 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     borderRadius: width * 0.07,
     paddingHorizontal: width * 0.03,
     paddingVertical: width * 0.022,
     marginBottom: width * 0.04,
     elevation: 2,
-    shadowColor: '#aaa',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.12,
     shadowRadius: 2,
@@ -152,18 +194,15 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: width * 0.045,
-    color: '#222',
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: width * 0.035,
     paddingHorizontal: width * 0.016,
-    backgroundColor: '#fff',
     borderRadius: width * 0.031,
     marginBottom: 2,
     elevation: 1,
-    shadowColor: WHATSAPP_LIGHT_GREY,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.12,
     shadowRadius: 2,
@@ -172,7 +211,6 @@ const styles = StyleSheet.create({
     width: width * 0.12,
     height: width * 0.12,
     borderRadius: width * 0.06,
-    backgroundColor: WHATSAPP_GREEN,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: width * 0.04,
@@ -193,30 +231,41 @@ const styles = StyleSheet.create({
     marginBottom: width * 0.008,
   },
   name: {
-    color: WHATSAPP_DARK,
     fontWeight: '600',
     fontSize: width * 0.048,
     marginRight: width * 0.02,
     maxWidth: '72%',
   },
   time: {
-    color: '#888',
     fontSize: width * 0.035,
-    fontWeight: '400',
   },
   lastMessage: {
-    color: '#555',
     fontSize: width * 0.042,
     maxWidth: '95%',
   },
   separator: {
     height: 1.1,
-    backgroundColor: WHATSAPP_LIGHT_GREY,
     marginHorizontal: width * 0.02,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: width * 0.1,
+  },
+  fab: {
+    position: 'absolute',
+    right: width * 0.055,
+    bottom: width * 0.055,
+    width: width * 0.16,
+    height: width * 0.16,
+    borderRadius: width * 0.08,
+    backgroundColor: '#25D366',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 7,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.24,
+    shadowRadius: 10,
   },
 });

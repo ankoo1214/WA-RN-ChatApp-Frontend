@@ -11,12 +11,12 @@ import {
   Platform,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
+import { useTheme } from '../context/ThemeProvider'; // Adjust path as needed
 
 const { width, height } = Dimensions.get('window');
-const WHATSAPP_GREEN = '#25D366';
-const WHATSAPP_DARK = '#075E54';
 
 export default function LoginSignup({ navigation }) {
+  const { theme } = useTheme();
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
 
@@ -30,11 +30,8 @@ export default function LoginSignup({ navigation }) {
       return;
     }
     try {
-      // Format phone, e.g. +911234567890
       const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
       const confirmation = await auth().signInWithPhoneNumber(formattedPhone);
-      // Pass name, phone, and confirmation to OTP screen
-      console.log('Confirmation Code:>', confirmation);
       navigation.navigate('OTP', {
         confirmation,
         phone: formattedPhone,
@@ -50,28 +47,39 @@ export default function LoginSignup({ navigation }) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.logoCircle}>
-        <Text style={styles.logoText}>WA</Text>
+      <View
+        style={[styles.logoCircle, { backgroundColor: theme.colors.accent }]}
+      >
+        <Text style={[styles.logoText, { color: theme.colors.text }]}>WA</Text>
       </View>
-      <Text style={styles.mainTitle}>Welcome to WhatsApp</Text>
-      <Text style={styles.subtitle}>
+      <Text style={[styles.mainTitle, { color: theme.colors.text }]}>
+        Welcome to WhatsApp
+      </Text>
+      <Text style={[styles.subtitle, { color: theme.colors.placeholder }]}>
         Enter your name and phone number to login or sign up
       </Text>
+
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          { backgroundColor: theme.colors.input, color: theme.colors.text },
+        ]}
         placeholder="Name"
-        placeholderTextColor="#888"
+        placeholderTextColor={theme.colors.placeholder}
         value={name}
         onChangeText={setName}
         autoCapitalize="words"
       />
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          { backgroundColor: theme.colors.input, color: theme.colors.text },
+        ]}
         placeholder="Phone Number"
-        placeholderTextColor="#888"
+        placeholderTextColor={theme.colors.placeholder}
         keyboardType="phone-pad"
         maxLength={14}
         value={phone}
@@ -81,11 +89,18 @@ export default function LoginSignup({ navigation }) {
         <Pressable
           style={({ pressed }) => [
             styles.primaryButton,
-            { opacity: pressed ? 0.7 : 1 },
+            {
+              opacity: pressed ? 0.7 : 1,
+              backgroundColor: theme.colors.accent,
+            },
           ]}
           onPress={handleSendOTP}
         >
-          <Text style={styles.primaryButtonText}>Login</Text>
+          <Text
+            style={[styles.primaryButtonText, { color: theme.colors.text }]}
+          >
+            Login
+          </Text>
         </Pressable>
         <Pressable
           style={({ pressed }) => [
@@ -94,7 +109,11 @@ export default function LoginSignup({ navigation }) {
           ]}
           onPress={handleSendOTP}
         >
-          <Text style={styles.secondaryButtonText}>Sign Up</Text>
+          <Text
+            style={[styles.secondaryButtonText, { color: theme.colors.accent }]}
+          >
+            Sign Up
+          </Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -104,7 +123,6 @@ export default function LoginSignup({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: WHATSAPP_DARK,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: width * 0.07,
@@ -113,42 +131,35 @@ const styles = StyleSheet.create({
     width: width * 0.3,
     height: width * 0.3,
     borderRadius: width * 0.15,
-    backgroundColor: WHATSAPP_GREEN,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: height * 0.06,
     elevation: 6,
-    shadowColor: WHATSAPP_GREEN,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.16,
     shadowRadius: width * 0.05,
   },
   logoText: {
-    color: '#fff',
     fontWeight: 'bold',
     letterSpacing: 4,
     fontSize: width * 0.13,
   },
   mainTitle: {
-    color: '#fff',
     fontSize: width * 0.075,
     fontWeight: 'bold',
     marginBottom: height * 0.03,
   },
   subtitle: {
-    color: '#e5e5e5',
     fontSize: width * 0.04,
     textAlign: 'center',
     marginBottom: height * 0.025,
   },
   input: {
-    backgroundColor: '#fff',
     width: '100%',
     borderRadius: width * 0.035,
     paddingVertical: width * 0.04,
     paddingHorizontal: width * 0.045,
     fontSize: width * 0.048,
-    color: '#222',
     marginBottom: height * 0.025,
     shadowColor: '#aaa',
     shadowOffset: { width: 0, height: 2 },
@@ -163,7 +174,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   primaryButton: {
-    backgroundColor: WHATSAPP_GREEN,
     borderRadius: width * 0.035,
     flex: 1,
     paddingVertical: width * 0.04,
@@ -172,23 +182,19 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   secondaryButton: {
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
     borderRadius: width * 0.035,
     flex: 1,
     paddingVertical: width * 0.04,
     alignItems: 'center',
     marginLeft: width * 0.018,
-    elevation: 2,
     borderWidth: 1.5,
-    borderColor: WHATSAPP_GREEN,
   },
   primaryButtonText: {
-    color: '#fff',
     fontSize: width * 0.048,
     fontWeight: '600',
   },
   secondaryButtonText: {
-    color: WHATSAPP_GREEN,
     fontSize: width * 0.048,
     fontWeight: '600',
   },

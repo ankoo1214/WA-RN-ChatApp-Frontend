@@ -10,16 +10,22 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-
+import { useTheme } from '../context/ThemeProvider';
 const { width, height } = Dimensions.get('window');
-const WHATSAPP_GREEN = '#25D366';
-const WHATSAPP_DARK = '#075E54';
 
 export default function OTPScreen({ route, navigation }) {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputs = useRef([]);
-
+  const { theme } = useTheme();
   const { phone, isNew } = route.params || {};
+
+  // Default fallback colors
+  const darkMode = theme?.dark ?? true;
+  const bgColor = theme?.colors?.background ?? '#075E54';
+  const accentColor = theme?.colors?.accent ?? '#25D366';
+  const textColor = theme?.colors?.text ?? '#fff';
+  const inputBg = theme?.colors?.input ?? '#fff';
+  const placeholderColor = theme?.colors?.placeholder ?? '#aaa';
 
   const handleChange = (text, index) => {
     if (!/^\d*$/.test(text)) return; // Only digits allowed
@@ -27,11 +33,10 @@ export default function OTPScreen({ route, navigation }) {
     newOtp[index] = text.slice(-1); // Only last digit if pasted more
     setOtp(newOtp);
 
-    // Focus next box if not last and number was entered
     if (text && index < 5) {
       inputs.current[index + 1].focus();
     }
-    // If pasted all 6 digits at once
+
     if (text.length === 6) {
       let chars = text.split('');
       setOtp(chars.slice(0, 6));
@@ -39,7 +44,6 @@ export default function OTPScreen({ route, navigation }) {
     }
   };
 
-  // Handle backspace: move focus left if box is empty
   const handleKeyPress = (e, index) => {
     if (e.nativeEvent.key === 'Backspace' && otp[index] === '' && index > 0) {
       inputs.current[index - 1].focus();
@@ -52,20 +56,21 @@ export default function OTPScreen({ route, navigation }) {
       Alert.alert('Enter the 6-digit OTP!');
       return;
     }
-    // Call your verify logic here
     navigation.replace('Home');
   };
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: bgColor }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.logoCircle}>
-        <Text style={styles.logoText}>WA</Text>
+      <View style={[styles.logoCircle, { backgroundColor: accentColor }]}>
+        <Text style={[styles.logoText, { color: textColor }]}>WA</Text>
       </View>
-      <Text style={styles.mainTitle}>Verify your number</Text>
-      <Text style={styles.subtitle}>
+      <Text style={[styles.mainTitle, { color: textColor }]}>
+        Verify your number
+      </Text>
+      <Text style={[styles.subtitle, { color: textColor + 'cc' }]}>
         Enter the 6-digit code sent to {phone}
       </Text>
       <View style={styles.otpRow}>
@@ -73,7 +78,15 @@ export default function OTPScreen({ route, navigation }) {
           <TextInput
             key={i}
             ref={ref => (inputs.current[i] = ref)}
-            style={styles.otpBox}
+            style={[
+              styles.otpBox,
+              {
+                backgroundColor: inputBg,
+                color: textColor,
+
+                borderColor: accentColor,
+              },
+            ]}
             keyboardType="number-pad"
             maxLength={1}
             value={digit}
@@ -81,26 +94,29 @@ export default function OTPScreen({ route, navigation }) {
             onKeyPress={e => handleKeyPress(e, i)}
             autoFocus={i === 0}
             textAlign="center"
-            selectionColor={WHATSAPP_GREEN}
+            selectionColor={accentColor}
             importantForAutofill={i === 0 ? 'yes' : 'no'}
-            autoComplete={i === 0 ? 'sms-otp' : 'off'} // Android autofill hint
+            autoComplete={i === 0 ? 'sms-otp' : 'off'}
             accessible={true}
             accessibilityLabel={`OTP Digit ${i + 1}`}
+            placeholder="0"
+            placeholderTextColor={placeholderColor}
           />
         ))}
       </View>
       <Pressable
         style={({ pressed }) => [
           styles.primaryButton,
-          { opacity: pressed ? 0.7 : 1 },
+          { opacity: pressed ? 0.7 : 1, backgroundColor: accentColor },
         ]}
         onPress={handleVerify}
       >
-        <Text style={styles.primaryButtonText}>Verify</Text>
+        <Text style={[styles.primaryButtonText, { color: textColor }]}>
+          Verify
+        </Text>
       </Pressable>
-      <Text style={styles.helpText}>
-        Didn’t receive code?{' '}
-        <Text style={{ color: WHATSAPP_GREEN }}>Resend</Text>
+      <Text style={[styles.helpText, { color: textColor + 'cc' }]}>
+        Didn’t receive code? <Text style={{ color: accentColor }}>Resend</Text>
       </Text>
     </KeyboardAvoidingView>
   );
@@ -109,7 +125,6 @@ export default function OTPScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: WHATSAPP_DARK,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: width * 0.07,
@@ -118,25 +133,21 @@ const styles = StyleSheet.create({
     width: width * 0.22,
     height: width * 0.22,
     borderRadius: width * 0.11,
-    backgroundColor: WHATSAPP_GREEN,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: height * 0.05,
   },
   logoText: {
-    color: '#fff',
     fontWeight: 'bold',
     letterSpacing: 4,
     fontSize: width * 0.09,
   },
   mainTitle: {
-    color: '#fff',
     fontSize: width * 0.058,
     fontWeight: 'bold',
     marginBottom: height * 0.017,
   },
   subtitle: {
-    color: '#e5e5e5',
     fontSize: width * 0.04,
     textAlign: 'center',
     marginBottom: height * 0.037,
@@ -145,19 +156,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: height * 0.03,
-
   },
   otpBox: {
-    backgroundColor: '#fff',
     borderRadius: width * 0.03,
     width: width * 0.11,
-    // height: width * 0.11,
     fontSize: width * 0.058,
-    color: '#222',
     textAlign: 'center',
     marginHorizontal: width * 0.015,
     borderWidth: 2,
-    borderColor: WHATSAPP_GREEN,
     elevation: 2,
     shadowColor: '#aaa',
     shadowOpacity: 0.12,
@@ -165,21 +171,17 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   primaryButton: {
-    backgroundColor: WHATSAPP_GREEN,
     borderRadius: width * 0.035,
     width: '60%',
     alignItems: 'center',
     paddingVertical: width * 0.042,
     marginVertical: width * 0.02,
-    elevation: 2,
   },
   primaryButtonText: {
-    color: '#fff',
     fontSize: width * 0.048,
     fontWeight: '600',
   },
   helpText: {
-    color: '#e5e5e5',
     fontSize: width * 0.037,
     marginTop: height * 0.015,
   },

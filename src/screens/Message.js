@@ -9,13 +9,14 @@ import {
   Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '../context/ThemeProvider'; // Adjust the import path
 
 const { width } = Dimensions.get('window');
-const WHATSAPP_GREEN = '#25D366';
 
 export default function MessageScreen({ route }) {
   const { chatId, chatName, avatar } = route.params;
-  // Dummy messages (replace with backend/store)
+  const { theme } = useTheme();
+
   const [messages, setMessages] = useState([
     { id: '1', text: 'Hey! How are you?', sender: 'them', time: '09:32' },
     { id: '2', text: 'Nice! See you soon.', sender: 'me', time: '09:40' },
@@ -44,14 +45,20 @@ export default function MessageScreen({ route }) {
         style={[
           styles.bubble,
           {
-            backgroundColor: item.sender === 'me' ? WHATSAPP_GREEN : '#fff',
+            backgroundColor:
+              item.sender === 'me'
+                ? theme.colors.accent
+                : theme.colors.background,
             borderTopRightRadius:
               item.sender === 'me' ? width * 0.04 : width * 0.02,
             borderTopLeftRadius:
               item.sender !== 'me' ? width * 0.04 : width * 0.02,
             borderBottomRightRadius: width * 0.04,
             borderBottomLeftRadius: width * 0.04,
-            borderColor: item.sender === 'me' ? WHATSAPP_GREEN : '#ececec',
+            borderColor:
+              item.sender === 'me'
+                ? theme.colors.accent
+                : theme.colors.separator,
             borderWidth: item.sender === 'me' ? 0 : 1,
           },
         ]}
@@ -59,7 +66,7 @@ export default function MessageScreen({ route }) {
         <Text
           style={[
             styles.messageText,
-            { color: item.sender === 'me' ? '#fff' : '#222' },
+            { color: item.sender === 'me' ? '#fff' : theme.colors.text },
           ]}
         >
           {item.text}
@@ -67,7 +74,12 @@ export default function MessageScreen({ route }) {
         <Text
           style={[
             styles.timeText,
-            { color: item.sender === 'me' ? 'rgba(255,255,255,0.7)' : '#888' },
+            {
+              color:
+                item.sender === 'me'
+                  ? 'rgba(255,255,255,0.7)'
+                  : theme.colors.placeholder,
+            },
           ]}
         >
           {item.time}
@@ -77,13 +89,24 @@ export default function MessageScreen({ route }) {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.avatarCircle}>
-          <Text style={styles.avatarText}>{avatar}</Text>
+      <View style={[styles.header, { backgroundColor: theme.colors.accent }]}>
+        <View
+          style={[
+            styles.avatarCircle,
+            { backgroundColor: theme.colors.background },
+          ]}
+        >
+          <Text style={[styles.avatarText, { color: theme.colors.accent }]}>
+            {avatar}
+          </Text>
         </View>
-        <Text style={styles.chatName}>{chatName}</Text>
+        <Text style={[styles.chatName, { color: theme.colors.background }]}>
+          {chatName}
+        </Text>
       </View>
       {/* Messages */}
       <FlatList
@@ -95,15 +118,29 @@ export default function MessageScreen({ route }) {
         inverted
       />
       {/* Input */}
-      <View style={styles.inputRow}>
+      <View
+        style={[
+          styles.inputRow,
+          {
+            borderTopColor: theme.colors.separator,
+            backgroundColor: theme.colors.card,
+          },
+        ]}
+      >
         <TextInput
           value={input}
           onChangeText={setInput}
           placeholder="Type a message"
-          placeholderTextColor="#888"
-          style={styles.input}
+          placeholderTextColor={theme.colors.placeholder}
+          style={[
+            styles.input,
+            { color: theme.colors.text, backgroundColor: theme.colors.input },
+          ]}
         />
-        <Pressable onPress={sendMessage} style={styles.sendButton}>
+        <Pressable
+          onPress={sendMessage}
+          style={[styles.sendButton, { backgroundColor: theme.colors.accent }]}
+        >
           <Icon name="send" size={width * 0.07} color="#fff" />
         </Pressable>
       </View>
@@ -112,10 +149,10 @@ export default function MessageScreen({ route }) {
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: WHATSAPP_GREEN,
     paddingVertical: width * 0.04,
     paddingHorizontal: width * 0.04,
   },
@@ -123,18 +160,15 @@ const styles = StyleSheet.create({
     width: width * 0.12,
     height: width * 0.12,
     borderRadius: width * 0.06,
-    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: width * 0.03,
   },
   avatarText: {
-    color: WHATSAPP_GREEN,
     fontWeight: 'bold',
     fontSize: width * 0.045,
   },
   chatName: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: width * 0.052,
   },
@@ -164,21 +198,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: width * 0.03,
     borderTopWidth: 1,
-    borderColor: '#eee',
-    backgroundColor: '#fff',
     alignItems: 'center',
   },
   input: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
     borderRadius: width * 0.035,
     paddingHorizontal: width * 0.04,
     fontSize: width * 0.05,
     marginRight: width * 0.03,
-    color: '#222',
   },
   sendButton: {
-    backgroundColor: WHATSAPP_GREEN,
     borderRadius: width * 0.05,
     width: width * 0.11,
     height: width * 0.11,

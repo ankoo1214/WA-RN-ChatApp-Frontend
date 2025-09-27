@@ -1,0 +1,13 @@
+{
+  "folders": [
+	{
+		"name": "WAChatApp",
+		"path": "."
+	},
+	{
+		"name": "waServer",
+		"path": "../waServer"
+	}
+],
+  "settings": {}
+}
